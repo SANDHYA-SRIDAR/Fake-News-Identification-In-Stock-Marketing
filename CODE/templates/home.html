@@ -1,346 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Market News Validator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg: #1a1a1a;
+            --panel: #252525;
+            --panel-soft: #2c2c2c;
+            --border: #333;
+            --text: #e0e0e0;
+            --muted: #a0a0a0;
+            --blue: #4a9eff;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --orange: #f39c12;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            background-color: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            width: 100%;
         }
-        
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border);
         }
-        
+
         .header h1 {
-            color: #4a9eff;
+            color: var(--blue);
             font-size: 2.2rem;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
-        
+
         .welcome {
-            font-size: 1.1rem;
-            color: #e0e0e0;
+            font-size: 1rem;
         }
-        
+
         .logout-btn {
-            background: #e74c3c;
+            background: var(--red);
             color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 10px 18px;
+            border-radius: 999px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
         }
-        
-        .logout-btn:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
+
+        .flash-list {
+            list-style: none;
+            margin-bottom: 20px;
         }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .stats-container {
-            background-color: #252525;
+
+        .flash-item {
+            margin-bottom: 10px;
+            padding: 14px 16px;
             border-radius: 10px;
+        }
+
+        .flash-item.success {
+            background: rgba(46, 204, 113, 0.14);
+            border: 1px solid rgba(46, 204, 113, 0.35);
+            color: var(--green);
+        }
+
+        .flash-item.error {
+            background: rgba(231, 76, 60, 0.14);
+            border: 1px solid rgba(231, 76, 60, 0.35);
+            color: #ff9287;
+        }
+
+        .stats-container,
+        .charts-container,
+        .analyze-container,
+        .recent-container {
+            background-color: var(--panel);
+            border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            grid-column: span 2;
         }
-        
+
+        .section-title {
+            color: var(--blue);
+            margin-bottom: 20px;
+            font-size: 1.45rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .stats-container,
+        .charts-container {
+            margin-bottom: 30px;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
-        
+
         .stat-card {
-            background-color: #2c2c2c;
+            background-color: var(--panel-soft);
             border-radius: 8px;
             padding: 15px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
             margin-bottom: 5px;
         }
-        
+
+        .total-stat .stat-value { color: var(--blue); }
+        .verified-stat .stat-value { color: var(--green); }
+        .fake-stat .stat-value { color: var(--red); }
+        .rate-stat .stat-value { color: var(--orange); }
+
         .stat-label {
-            color: #a0a0a0;
-            font-size: 0.9rem;
+            color: var(--muted);
+            font-size: 0.92rem;
         }
-        
-        .total-stat .stat-value {
-            color: #4a9eff;
+
+        .charts-grid,
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 30px;
         }
-        
-        .verified-stat .stat-value {
-            color: #2ecc71;
+
+        .charts-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
-        
-        .fake-stat .stat-value {
-            color: #e74c3c;
+
+        .chart-card {
+            background-color: var(--panel-soft);
+            border-radius: 8px;
+            padding: 15px;
         }
-        
-        .rate-stat .stat-value {
-            color: #f39c12;
+
+        .chart-title {
+            color: var(--blue);
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        
-        .analyze-container, .recent-container {
-            background-color: #252525;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+        .chart-container {
+            position: relative;
+            height: 250px;
         }
-        
-        .section-title {
-            color: #4a9eff;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-        
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
-        
-        .form-group label {
+
+        label {
             display: block;
             margin-bottom: 8px;
-            color: #e0e0e0;
             font-weight: 500;
         }
-        
-        input[type="text"], textarea {
+
+        input[type="text"],
+        textarea {
             width: 100%;
             padding: 12px;
-            background-color: #2c2c2c;
+            background-color: var(--panel-soft);
             border: 1px solid #444;
             border-radius: 6px;
-            color: #e0e0e0;
+            color: var(--text);
             font-size: 1rem;
-            transition: all 0.3s ease;
         }
-        
-        input[type="text"]:focus, textarea:focus {
-            outline: none;
-            border-color: #4a9eff;
-            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
-        }
-        
+
         textarea {
             min-height: 150px;
             resize: vertical;
         }
-        
+
         .submit-btn {
-            background: linear-gradient(45deg, #4a9eff, #3a8eef);
+            background: linear-gradient(45deg, var(--blue), #3a8eef);
             color: white;
             border: none;
             padding: 12px 30px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: block;
             width: 100%;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
         }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+
+        .secondary-btn {
+            margin-top: 14px;
         }
-        
+
         .result-container {
             margin-top: 20px;
             padding: 15px;
             border-radius: 8px;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            transition: all 0.5s ease;
         }
-        
+
         .prediction-real {
             background-color: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
+            color: var(--green);
             border: 1px solid rgba(46, 204, 113, 0.3);
         }
-        
+
         .prediction-fake {
             background-color: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
+            color: var(--red);
             border: 1px solid rgba(231, 76, 60, 0.3);
         }
-        
+
         .recent-list {
             list-style: none;
         }
-        
-        .recent-item {
-            background-color: #2c2c2c;
+
+        .recent-item,
+        .live-news-item {
+            background-color: var(--panel-soft);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
         }
-        
-        .recent-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
+
         .recent-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
             margin-bottom: 10px;
         }
-        
+
         .recent-title {
             font-weight: 600;
-            color: #e0e0e0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
-        
+
         .recent-badge {
             padding: 4px 10px;
-            border-radius: 20px;
+            border-radius: 999px;
             font-size: 0.8rem;
             font-weight: 600;
         }
-        
+
         .badge-verified {
             background-color: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
+            color: var(--green);
         }
-        
+
         .badge-fake {
             background-color: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
+            color: var(--red);
         }
-        
+
         .recent-meta {
             display: flex;
             justify-content: space-between;
-            color: #a0a0a0;
+            gap: 10px;
+            color: var(--muted);
             font-size: 0.85rem;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
-        
+
         .confidence {
-            color: #4a9eff;
+            color: var(--blue);
         }
-        
+
+        .live-news-title {
+            margin-bottom: 12px;
+            color: var(--blue);
+        }
+
+        .live-news-link {
+            color: #6aa9ff;
+            text-decoration: none;
+        }
+
         .footer {
             margin-top: 30px;
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9rem;
             padding: 20px 0;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border);
         }
-        
+
         @media (max-width: 1024px) {
+            .stats-grid,
+            .charts-grid,
             .dashboard {
                 grid-template-columns: 1fr;
             }
-            
-            .stats-container {
-                grid-column: span 1;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
-        
-        @media (max-width: 600px) {
+
+        @media (max-width: 700px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header {
                 flex-direction: column;
-                gap: 15px;
+                align-items: flex-start;
             }
-        }
-        
-        /* Chart Styles */
-        .charts-container {
-            background-color: #252525;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-            grid-column: span 2;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        .chart-card {
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .chart-title {
-            color: #4a9eff;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 250px;
         }
     </style>
 </head>
@@ -349,10 +340,20 @@
         <div class="header">
             <h1>Stock Market News Validator</h1>
             <div class="user-info">
-            <div class="welcome">Welcome to Stock Market News Validator</div>
-               
+                <div class="welcome">Welcome, {{ current_user.username }}!</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Sign Out</a>
             </div>
         </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-list">
+                    {% for category, message in messages %}
+                        <li class="flash-item {{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         <div class="stats-container">
             <h2 class="section-title">Analysis Statistics</h2>
@@ -376,7 +377,6 @@
             </div>
         </div>
 
-        <!-- Charts Section - Added Code -->
         <div class="charts-container">
             <h2 class="section-title">Data Visualization</h2>
             <div class="charts-grid">
@@ -400,41 +400,33 @@
                 </div>
             </div>
         </div>
-        <!-- End of Added Code -->
 
         <div class="dashboard">
             <div class="analyze-container">
                 <h2 class="section-title">Analyze News</h2>
-                <form method="POST">
+                <form method="POST" action="{{ url_for('home') }}">
                     <div class="form-group">
                         <label for="title">News Title</label>
-                        <input type="text" id="title" name="title" placeholder="Enter news title...">
+                        <input type="text" id="title" name="title" placeholder="Enter news title">
                     </div>
                     <div class="form-group">
                         <label for="url">Source URL</label>
-                        <input type="text" id="url" name="url" placeholder="Enter source URL...">
+                        <input type="text" id="url" name="url" placeholder="Enter source URL">
                     </div>
                     <div class="form-group">
                         <label for="content">News Content</label>
-                        <textarea id="content" name="content" placeholder="Enter news content here..." required></textarea>
+                        <textarea id="content" name="content" placeholder="Enter news content here" required></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">
-                        Analyze News
-                    </button>
-                    
-                    <button type="button"
-                            class="submit-btn"
-                            id="fetchLiveNewsBtn"
-                            style="margin-top:15px;"
-                            onclick="fetchLiveNews()">
+                    <button type="submit" class="submit-btn">Analyze News</button>
+                    <button type="button" class="submit-btn secondary-btn" id="fetchLiveNewsBtn" onclick="fetchLiveNews()">
                         Fetch Live News
                     </button>
-                    
-                    <div id="liveNewsResults" style="margin-top:20px;"></div>
-                    
+                </form>
+
+                <div id="liveNewsResults" style="margin-top:20px;"></div>
 
                 {% if prediction is not none %}
-                    <div class="result-container {% if prediction == 'Real' %}prediction-real{% elif prediction == 'Fake' %}prediction-fake{% endif %}">
+                    <div class="result-container {% if prediction == 'Real' %}prediction-real{% else %}prediction-fake{% endif %}">
                         <h3>Prediction: {{ prediction }}</h3>
                         {% if confidence is not none %}
                             <p>Confidence: {{ confidence|round(1) }}%</p>
@@ -464,39 +456,35 @@
                         </li>
                     {% else %}
                         <li class="recent-item">
-                            <p>No recent analyses available.</p>
+                            <p>No analysis saved yet for this user.</p>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-        
+
         <div class="footer">
-            <p>© 2025 Stock Market News Validator | Protecting Information Integrity</p>
+            <p>&copy; 2026 Stock Market News Validator</p>
         </div>
     </div>
 
     <script>
-        // Chart.js initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pie Chart - News Distribution
-            const pieCtx = document.getElementById('pieChart').getContext('2d');
-            const pieChart = new Chart(pieCtx, {
-                type: 'pie',
+        const chartData = {{ chart_data|tojson }};
+
+        document.addEventListener("DOMContentLoaded", function () {
+            new Chart(document.getElementById("pieChart"), {
+                type: "pie",
                 data: {
-                    labels: ['Real', 'Fake'],
+                    labels: chartData.pie.labels,
                     datasets: [{
-                        data: [
-                            {% if stats.verified %}{{ stats.verified }}{% else %}0{% endif %},
-                            {% if stats.fake %}{{ stats.fake }}{% else %}0{% endif %}
-                        ],
+                        data: chartData.pie.data,
                         backgroundColor: [
-                            'rgba(46, 204, 113, 0.7)',
-                            'rgba(231, 76, 60, 0.7)'
+                            "rgba(46, 204, 113, 0.7)",
+                            "rgba(231, 76, 60, 0.7)"
                         ],
                         borderColor: [
-                            'rgba(46, 204, 113, 1)',
-                            'rgba(231, 76, 60, 1)'
+                            "rgba(46, 204, 113, 1)",
+                            "rgba(231, 76, 60, 1)"
                         ],
                         borderWidth: 1
                     }]
@@ -506,46 +494,22 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#e0e0e0',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
+                            position: "bottom",
+                            labels: { color: "#e0e0e0" }
                         }
                     }
                 }
             });
 
-            // Bar Chart - Confidence Distribution
-            const barCtx = document.getElementById('barChart').getContext('2d');
-            const barChart = new Chart(barCtx, {
-                type: 'bar',
+            new Chart(document.getElementById("barChart"), {
+                type: "bar",
                 data: {
-                    labels: ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'],
+                    labels: chartData.bar.labels,
                     datasets: [{
-                        label: 'Number of Analyses',
-                        data: [
-                            {% if chart_data.bar %}{{ chart_data.bar.data[0] }}{% else %}0{% endif %},
-                            {% if chart_data.bar %}{{ chart_data.bar.data[1] }}{% else %}0{% endif %},
-                            {% if chart_data.bar %}{{ chart_data.bar.data[2] }}{% else %}0{% endif %},
-                            {% if chart_data.bar %}{{ chart_data.bar.data[3] }}{% else %}0{% endif %},
-                            {% if chart_data.bar %}{{ chart_data.bar.data[4] }}{% else %}0{% endif %}
-                        ],
-                        backgroundColor: 'rgba(74, 158, 255, 0.7)',
-                        borderColor: 'rgba(74, 158, 255, 1)',
+                        label: "Number of Analyses",
+                        data: chartData.bar.data,
+                        backgroundColor: "rgba(74, 158, 255, 0.7)",
+                        borderColor: "rgba(74, 158, 255, 1)",
                         borderWidth: 1
                     }]
                 },
@@ -555,71 +519,36 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                color: '#a0a0a0',
-                                stepSize: 1
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            ticks: { color: "#a0a0a0", stepSize: 1 },
+                            grid: { color: "rgba(255, 255, 255, 0.1)" }
                         },
                         x: {
-                            ticks: {
-                                color: '#a0a0a0'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Analyses: ${context.raw}`;
-                                }
-                            }
+                            ticks: { color: "#a0a0a0" },
+                            grid: { color: "rgba(255, 255, 255, 0.1)" }
                         }
                     }
                 }
             });
 
-            // Line Chart - Prediction Trend
-            const lineCtx = document.getElementById('lineChart').getContext('2d');
-            const lineChart = new Chart(lineCtx, {
-                type: 'line',
+            new Chart(document.getElementById("lineChart"), {
+                type: "line",
                 data: {
-                    labels: [
-                        {% for date in chart_data.line.labels %}
-                            '{{ date }}'{% if not loop.last %},{% endif %}
-                        {% endfor %}
-                    ],
+                    labels: chartData.line.labels,
                     datasets: [
                         {
-                            label: 'Real News',
-                            data: [
-                                {% for count in chart_data.line.real %}
-                                    {{ count }}{% if not loop.last %},{% endif %}
-                                {% endfor %}
-                            ],
-                            borderColor: 'rgba(46, 204, 113, 1)',
-                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            label: "Real News",
+                            data: chartData.line.real,
+                            borderColor: "rgba(46, 204, 113, 1)",
+                            backgroundColor: "rgba(46, 204, 113, 0.1)",
                             borderWidth: 2,
                             tension: 0.3,
                             fill: true
                         },
                         {
-                            label: 'Fake News',
-                            data: [
-                                {% for count in chart_data.line.fake %}
-                                    {{ count }}{% if not loop.last %},{% endif %}
-                                {% endfor %}
-                            ],
-                            borderColor: 'rgba(231, 76, 60, 1)',
-                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            label: "Fake News",
+                            data: chartData.line.fake,
+                            borderColor: "rgba(231, 76, 60, 1)",
+                            backgroundColor: "rgba(231, 76, 60, 0.1)",
                             borderWidth: 2,
                             tension: 0.3,
                             fill: true
@@ -632,77 +561,70 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                color: '#a0a0a0',
-                                stepSize: 1
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            ticks: { color: "#a0a0a0", stepSize: 1 },
+                            grid: { color: "rgba(255, 255, 255, 0.1)" }
                         },
                         x: {
-                            ticks: {
-                                color: '#a0a0a0'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            ticks: { color: "#a0a0a0" },
+                            grid: { color: "rgba(255, 255, 255, 0.1)" }
                         }
                     },
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#e0e0e0',
-                                font: {
-                                    size: 12
-                                }
-                            }
+                            position: "bottom",
+                            labels: { color: "#e0e0e0" }
                         }
                     }
                 }
             });
         });
-    </script>
-    <script>
+
         function fetchLiveNews() {
             const btn = document.getElementById("fetchLiveNewsBtn");
             const container = document.getElementById("liveNewsResults");
-        
+
             btn.innerText = "Fetching Live News...";
             btn.disabled = true;
             container.innerHTML = "";
-        
-            fetch("/api/fetch-live-news", { method: "POST" })
-                .then(res => res.json())
-                .then(data => {
-                    let html = "<h3>Live Stock News Analysis</h3>";
-        
-                    data.forEach(item => {
+
+            fetch("{{ url_for('fetch_live_news') }}", { method: "POST" })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        container.innerHTML = "<p style='color:#ff9287;'>Error fetching live news.</p>";
+                        return;
+                    }
+
+                    if (!data.length) {
+                        container.innerHTML = "<p>No live news was returned.</p>";
+                        return;
+                    }
+
+                    let html = "<h3 class='live-news-title'>Live Stock News Analysis</h3>";
+                    data.forEach((item) => {
                         html += `
-                            <div style="background:#2c2c2c;padding:15px;border-radius:10px;margin-bottom:10px;">
+                            <div class="live-news-item">
                                 <strong>${item.title}</strong><br>
                                 Prediction:
-                                <b style="color:${item.prediction === 'Real' ? '#2ecc71' : '#e74c3c'};">
+                                <b style="color:${item.prediction === "Real" ? "#2ecc71" : "#e74c3c"};">
                                     ${item.prediction}
                                 </b><br>
-                                Confidence: ${item.confidence}%<br>
-                                <a href="${item.url}" target="_blank" style="color:#6aa9ff;">Read source</a>
+                                Confidence: ${item.confidence ?? "N/A"}%<br>
+                                <a class="live-news-link" href="${item.url}" target="_blank" rel="noopener noreferrer">Read source</a>
                             </div>
                         `;
                     });
-        
+
                     container.innerHTML = html;
                 })
                 .catch(() => {
-                    container.innerHTML = "<p style='color:red;'>Error fetching live news.</p>";
+                    container.innerHTML = "<p style='color:#ff9287;'>Error fetching live news.</p>";
                 })
                 .finally(() => {
                     btn.innerText = "Fetch Live News";
                     btn.disabled = false;
                 });
         }
-        </script>
-        
+    </script>
 </body>
 </html>
